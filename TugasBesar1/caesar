@@ -1,0 +1,42 @@
+
+def caesar_encrypt(plaintext, shift):
+    result = ""
+    for char in plaintext.upper():
+        if char.isalpha():
+            result += chr((ord(char) - 65 + shift) % 26 + 65)
+        else:
+            result += char
+    return result
+
+def caesar_decrypt(ciphertext, shift):
+    result = ""
+    for char in ciphertext.upper():
+        if char.isalpha():
+            result += chr((ord(char) - 65 - shift) % 26 + 65)
+        else:
+            result += char
+    return result
+# ==============================
+# Program utama
+# ==============================
+print("=== Program Caesar Cipher ===")
+plaintext = input("Masukkan teks yang ingin dienkripsi: ").upper()
+shift = int(input("Masukkan jumlah pergeseran: "))
+
+cipher = caesar_encrypt(plaintext, shift)
+decrypted = caesar_decrypt(cipher, shift)
+
+# Tampilkan hasil di layar
+print("\nHasil Enkripsi :", cipher)
+print("Hasil Dekripsi :", decrypted)
+
+# Simpan hasil ke file
+filename = "hasil_caesar.txt"
+with open(filename, "w") as file:
+    file.write("=== HASIL PROGRAM CAESAR CIPHER ===\n")
+    file.write(f"Teks asli     : {plaintext}\n")
+    file.write(f"Shift         : {shift}\n")
+    file.write(f"Hasil enkripsi: {cipher}\n")
+    file.write(f"Hasil dekripsi: {decrypted}\n")
+
+print(f"\nHasil berhasil disimpan di file '{filename}' ✅")
