@@ -1,0 +1,94 @@
+
+def generate_playfair_matrix(key):
+    key = key.upper().replace("J", "I")
+    alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+    matrix = []
+    used = set()
+    for c in key + alphabet:
+        if c not in used:
+            matrix.append(c)
+            used.add(c)
+    return [matrix[i:i+5] for i in range(0, 25, 5)]
+
+def find_position(matrix, letter):
+    for r in range(5):
+        for c in range(5):
+            if matrix[r][c] == letter:
+                return r, c
+    return None
+
+def playfair_encrypt(plaintext, key):
+    plaintext = plaintext.upper().replace("J", "I").replace(" ", "")
+    matrix = generate_playfair_matrix(key)
+
+    # buat pasangan huruf
+    pairs = []
+    i = 0
+    while i < len(plaintext):
+        a = plaintext[i]
+        b = plaintext[i + 1] if i + 1 < len(plaintext) else 'X'
+        if a == b:
+            pairs.append((a, 'X'))
+            i += 1
+        else:
+            pairs.append((a, b))
+            i += 2
+
+    # enkripsi
+    ciphertext = ""
+    for a, b in pairs:
+        ra, ca = find_position(matrix, a)
+        rb, cb = find_position(matrix, b)
+        if ra == rb:
+            ciphertext += matrix[ra][(ca + 1) % 5]
+            ciphertext += matrix[rb][(cb + 1) % 5]
+        elif ca == cb:
+            ciphertext += matrix[(ra + 1) % 5][ca]
+            ciphertext += matrix[(rb + 1) % 5][cb]
+        else:
+            ciphertext += matrix[ra][cb]
+            ciphertext += matrix[rb][ca]
+    return ciphertext
+
+def playfair_decrypt(ciphertext, key):
+    ciphertext = ciphertext.upper()
+    matrix = generate_playfair_matrix(key)
+    plaintext = ""
+
+    for i in range(0, len(ciphertext), 2):
+        a, b = ciphertext[i], ciphertext[i + 1]
+        ra, ca = find_position(matrix, a)
+        rb, cb = find_position(matrix, b)
+        if ra == rb:
+            plaintext += matrix[ra][(ca - 1) % 5]
+            plaintext += matrix[rb][(cb - 1) % 5]
+        elif ca == cb:
+            plaintext += matrix[(ra - 1) % 5][ca]
+            plaintext += matrix[(rb - 1) % 5][cb]
+        else:
+            plaintext += matrix[ra][cb]
+            plaintext += matrix[rb][ca]
+    return plaintext
+# ==============================
+# Program utama
+print("=== Program Playfair Cipher ===")
+plaintext = input("Masukkan teks yang ingin dienkripsi: ").upper()
+key = input("Masukkan kunci (key): ").upper()
+
+cipher = playfair_encrypt(plaintext, key)
+decrypted = playfair_decrypt(cipher, key)
+
+# tampilkan hasil di layar
+print("\nHasil Enkripsi :", cipher)
+print("Hasil Dekripsi :", decrypted)
+
+# simpan hasil ke file
+filename = "hasil_playfair.txt"
+with open(filename, "w") as file:
+    file.write("=== HASIL PROGRAM PLAYFAIR CIPHER ===\n")
+    file.write(f"Teks asli     : {plaintext}\n")
+    file.write(f"Kunci (key)   : {key}\n")
+    file.write(f"Hasil enkripsi: {cipher}\n")
+    file.write(f"Hasil dekripsi: {decrypted}\n")
+
+print(f"\nHasil berhasil disimpan di file '{filename}' ✅")
