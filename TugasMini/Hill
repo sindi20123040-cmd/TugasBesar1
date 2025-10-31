@@ -1,0 +1,51 @@
+import numpy as np
+
+# ===== ENKRIPSI =====
+def hill_encrypt(text, key):
+    text = text.upper().replace(' ', '')
+    n = int(len(key) ** 0.5)
+    key = np.array(key).reshape(n, n)
+
+    # Padding agar panjang teks kelipatan n
+    while len(text) % n != 0:
+        text += 'X'
+
+    result = ''
+    for i in range(0, len(text), n):
+        block = [ord(c) - 65 for c in text[i:i+n]]
+        cipher = np.dot(key, block) % 26
+        result += ''.join(chr(int(c) + 65) for c in cipher)
+    return result
+
+
+# ===== DEKRIPSI =====
+def hill_decrypt(cipher_text, key):
+    cipher_text = cipher_text.upper().replace(' ', '')
+    n = int(len(key) ** 0.5)
+    key = np.array(key).reshape(n, n)
+
+    # Hitung invers matriks kunci dalam modulo 26
+    det = int(round(np.linalg.det(key)))  # determinan matriks
+    det_inv = pow(det, -1, 26)  # invers determinan mod 26
+
+    # Dapatkan matriks adjugate (adjoin)
+    key_inv = (det_inv * np.round(det * np.linalg.inv(key)).astype(int)) % 26
+
+    result = ''
+    for i in range(0, len(cipher_text), n):
+        block = [ord(c) - 65 for c in cipher_text[i:i+n]]
+        plain = np.dot(key_inv, block) % 26
+        result += ''.join(chr(int(round(p)) + 65) for p in plain)
+    return result
+
+
+# ===== CONTOH PENGUJIAN =====
+key = [3, 3, 2, 5]  # matriks 2x2
+plaintext = "TEST"
+
+encrypted = hill_encrypt(plaintext, key)
+decrypted = hill_decrypt(encrypted, key)
+
+print("Plaintext :", plaintext)
+print("Encrypted :", encrypted)
+print("Decrypted :", decrypted)
