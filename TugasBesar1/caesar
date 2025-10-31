@@ -40,3 +40,4 @@ with open(filename, "w") as file:
     file.write(f"Hasil dekripsi: {decrypted}\n")
 
 print(f"\nHasil berhasil disimpan di file '{filename}' ✅")
+
