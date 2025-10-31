@@ -1,0 +1,54 @@
+
+def vigenere_encrypt(plaintext, key):
+    plaintext = plaintext.upper()
+    key = key.upper()
+    result = ""
+    j = 0
+    for char in plaintext:
+        if char.isalpha():
+            shift = ord(key[j % len(key)]) - 65
+            result += chr((ord(char) - 65 + shift) % 26 + 65)
+            j += 1
+        else:
+            result += char
+    return result
+
+def vigenere_decrypt(ciphertext, key):
+    ciphertext = ciphertext.upper()
+    key = key.upper()
+    result = ""
+    j = 0
+    for char in ciphertext:
+        if char.isalpha():
+            shift = ord(key[j % len(key)]) - 65
+            result += chr((ord(char) - 65 - shift) % 26 + 65)
+            j += 1
+        else:
+            result += char
+    return result
+
+
+# ==============================
+# Program utama
+# ==============================
+print("=== Program Vigenère Cipher ===")
+plaintext = input("Masukkan teks yang ingin dienkripsi: ").upper()
+key = input("Masukkan kunci (key): ").upper()
+
+cipher = vigenere_encrypt(plaintext, key)
+decrypted = vigenere_decrypt(cipher, key)
+
+# Tampilkan hasil di layar
+print("\nHasil Enkripsi :", cipher)
+print("Hasil Dekripsi :", decrypted)
+
+# Simpan hasil ke file
+filename = "hasil_vigenere.txt"
+with open(filename, "w") as file:
+    file.write("=== HASIL PROGRAM VIGENÈRE CIPHER ===\n")
+    file.write(f"Teks asli     : {plaintext}\n")
+    file.write(f"Kunci (key)   : {key}\n")
+    file.write(f"Hasil enkripsi: {cipher}\n")
+    file.write(f"Hasil dekripsi: {decrypted}\n")
+
+print(f"\nHasil berhasil disimpan di file '{filename}' ✅")
