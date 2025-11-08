@@ -1,0 +1,105 @@
+import numpy as np
+
+MOD = 26
+
+# ===============================
+# KONVERSI TEKS
+# ===============================
+def text_to_numbers(text):
+    text = text.upper()
+    teks_bersih = ''.join([c for c in text if c.isalpha()])
+    return [ord(c) - 65 for c in teks_bersih]
+
+def numbers_to_text(nums):
+    return ''.join([chr((n % 26) + 65) for n in nums])
+
+# ===============================
+# CARI INVERS MATRIKS MODULO 26
+# ===============================
+def matrix_inverse_mod(matrix):
+    matrix = np.array(matrix)
+    n = matrix.shape[0]
+
+    det = int(round(np.linalg.det(matrix))) % MOD
+
+    det_inv = None
+    for i in range(26):
+        if (det * i) % MOD == 1:
+            det_inv = i
+            break
+    if det_inv is None:
+        raise ValueError("Matriks tidak invertible modulo 26.")
+
+    cof = np.zeros((n, n), dtype=int)
+    for i in range(n):
+        for j in range(n):
+            minor = np.delete(np.delete(matrix, i, axis=0), j, axis=1)
+            cof[i, j] = ((-1)**(i+j)) * int(round(np.linalg.det(minor)))
+
+    adj = cof.T
+    return (det_inv * adj) % MOD
+
+# ===============================
+# ENKRIPSI
+# ===============================
+def hill_encrypt(text, key):
+    key = np.array(key)
+    n = key.shape[0]
+
+    angka = text_to_numbers(text)
+
+    while len(angka) % n != 0:
+        angka.append(23)  # padding dengan X (23)
+
+    hasil = []
+    for i in range(0, len(angka), n):
+        blok = np.array(angka[i:i+n])
+        # ubah urutan di sini biar cocok dengan CrypTool:
+        enc = np.dot(blok, key) % MOD
+        hasil.extend(enc)
+    return numbers_to_text(hasil)
+
+
+# ===============================
+# DEKRIPSI
+# ===============================
+def hill_decrypt(text, key):
+    key_inv = matrix_inverse_mod(key)
+    key_inv = np.array(key_inv)
+    n = key_inv.shape[0]
+
+    angka = text_to_numbers(text)
+
+    hasil = []
+    for i in range(0, len(angka), n):
+        blok = np.array(angka[i:i+n])
+        # urutan juga disesuaikan biar matching dengan enkripsi CrypTool
+        dec = np.dot(blok, key_inv) % MOD
+        hasil.extend(dec)
+    return numbers_to_text(hasil)
+
+# ===============================
+# PROGRAM UTAMA TANPA MENU
+# ===============================
+print("===== HILL CIPHER OTOMATIS =====")
+
+teks = input("Masukkan teks: ")
+
+n = int(input("Ukuran matriks (2 atau 3): "))
+
+print(f"Masukkan matriks kunci {n}x{n}:")
+key = []
+for i in range(n):
+    row = list(map(int, input(f"Baris {i+1}: ").split()))
+    key.append(row)
+
+try:
+    encrypted = hill_encrypt(teks, key)
+    decrypted = hill_decrypt(encrypted, key)
+
+    print("\n=== HASIL ===")
+    print("Hasil Enkripsi :", encrypted)
+    print("Hasil Dekripsi :", decrypted)
+
+except Exception as e:
+    print("Error:", e)
